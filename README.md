@@ -1,7 +1,3 @@
-# projects
-Holds all projects that are being carried out by the group
-
-
 # Projects For Our IoT Meetup
 ![IoT Main Image](https://github.com/SRUK-IoT-Meetup/assets/blob/master/images/iot-main.png)
 
