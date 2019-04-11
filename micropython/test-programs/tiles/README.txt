@@ -14,5 +14,5 @@ Please visit http://micropython.org/help/ for further help.
 For using the sensor on the big sensor tile. Import the driver in the repl.
 
 >>> import tile_one
->>> s=tile_one.TILE_ONE()
+>>> s=tile_one.TileOne()
 >>> s.demo(5) # e.g. for 5 measurements
