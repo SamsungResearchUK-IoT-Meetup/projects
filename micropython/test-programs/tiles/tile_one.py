@@ -101,6 +101,8 @@ class TileOne:
             return on
 
     def beep(self, freq=4000, dur=100, v=100):
+        # TODO wrap value checking in a try or another function then call up the timer code to make
+        # the buzzer sound
         if freq < 100:
             self.buz_en(0)
             return
