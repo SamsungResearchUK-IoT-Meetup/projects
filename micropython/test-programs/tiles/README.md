@@ -1,7 +1,7 @@
 # Test Program for MicroPython Pyboard D
 
 This test program is written for the new micropython [Pyboard D](http://pybd.io/).
-The main difference between this and over development board is that this is made to me modular.
+The main difference between this and over development board is that this is made to be modular.
 So that the board could be used *as is* for a product containing the appropirate 40 pin BUS connection.
 
 You can get started right away by writing your Python code in 'main.py' as normal.
@@ -19,7 +19,7 @@ Please visit http://micropython.org/help/ for further help.
 
 The test program contains a 'tile' object definition which allows the user to instantiate a tile
 object. The tile object will by default configure and read values from the sensor tiles made for
-the pyboard 'D' where are [here](https://pybd.io/hw/tile_sensa.html). The tiles are made to fit
+the pyboard 'D' which are described [here](https://pybd.io/hw/tile_sensa.html). The tiles are made to fit
 onto the [68 pin](https://pybd.io/hw/wbus_dip68.html) or 28 pin DIP board.
 
 For using the sensor on the big sensor tile. Import the driver in the repl.
