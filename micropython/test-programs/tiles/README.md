@@ -29,7 +29,6 @@ For using the sensor on the big sensor tile. Import the driver in the repl.
 >>> s=tile_one.TileOne()
 >>> s.demo(5) # e.g. for 5 measurements
 20393133 0 TI07d0 23.3 C 25.0 % TI3001 14.32 lux
-
 20394133 1 TI07d0 23.3 C 25.0 % TI3001 14.32 lux
 20395133 2 TI07d0 23.3 C 25.0 % TI3001 14.24 lux
 20396133 3 TI07d0 23.3 C 25.1 % TI3001 0.66 lux
