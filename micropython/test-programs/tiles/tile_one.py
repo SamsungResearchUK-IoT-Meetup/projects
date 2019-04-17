@@ -122,7 +122,7 @@ class TileOne:
 
 
     def demo(self, n=0, dt=1000, rgb=0):
-        next = pyb.mills()                         # Before we start take a snapshot of the current time on the board
+        next = pyb.millis()                         # Before we start take a snapshot of the current time on the board
 
         for x in range(n):                         # Setup our loop to go through 'n' iterations.
             hdc = self.hdc()                       # Read a value from our humidity and temperature sensor
