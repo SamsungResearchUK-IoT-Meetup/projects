@@ -18,9 +18,6 @@ class TileOne:
 
     https://store.micropython.org/media/products/PYBD_SF2_W4F2_ds2.jpg
 
-    Properties created with the ``@property`` decorator should be documented
-    in the property's getter method.
-
     Attributes:
         slot (str: optional): Slot or bus value which can be 'X' or 'Y'. Defaults to 'X'
 
@@ -112,13 +109,13 @@ class TileOne:
             v = 1
         elif v > 10:
             v = 10
-            t = pyb.Timer(self.tim, freq=freq, mode=pyb.Timer.CENTER)
-            t.channel(self.chan, pyb.Timer.PWM, pin=self.buz, pulse_width=(t.period() + 1) // (200//v))
-            pyb.delay(dur)
-            t.channel(self.chan, pyb.Timer.PWM, pin=self.buz, pulse_width=0)
+        t = pyb.Timer(self.tim, freq=freq, mode=pyb.Timer.CENTER)
+        t.channel(self.chan, pyb.Timer.PWM, pin=self.buz, pulse_width=(t.period() + 1) // (200//v))
+        pyb.delay(dur)
+        t.channel(self.chan, pyb.Timer.PWM, pin=self.buz, pulse_width=0)
 
     def led(self, color):
-        color ^= 7
+        color ^= 7                                  # Exclusive OR Bitwise operation
         self.leds[0](color & 1)
         self.leds[1](color & 2)
         self.leds[2](color & 4)
