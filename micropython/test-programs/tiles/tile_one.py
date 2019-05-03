@@ -130,7 +130,7 @@ class TileOne:
             self.beep(dur=150)                     # Beep our sounder
             self.beep(0)                           # Turn off the sounder
             self.led((rgb+x) & 7)                  # Change colour based on taking the modulus of 'x mod 7'
-            print(next, rgb+x, hdc, lux)
+            print("test2", next, rgb+x, hdc, lux)
             time_current = pyb.millis()            # Get current time from the board. Used to work out elapsed time
             pyb.delay(next - time_current)         # Make sure the delay time is delay - time to do all the functions above.
                                                    # First time round the loop this will be negative. TODO check for negative times.
