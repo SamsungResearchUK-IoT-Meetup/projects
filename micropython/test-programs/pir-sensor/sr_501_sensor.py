@@ -63,7 +63,7 @@ class PIR:
     * https://github.com/SamsungResearchUK-IoT-Meetup/projects/wiki/Sensors
     """
 
-    def __init__(self, callback, pir_pin_id='X1'):
+    def __init__(self, callback=simple_test_callback, pir_pin_id='X1'):
         self.callback = callback
         self.pir_pin = pir_pin_id
         self._pir_pin_object = pyb.Pin(pir_pin_id, pyb.Pin.IN)
@@ -86,7 +86,8 @@ class PIR:
 
     def start(self):
         """
-        Try and create an external interrupt for the supplied Pin
+        Try and create an external interrupt for the supplied Pin. If successful your 'callback' will be called every time the PIR
+        sensor detects a movement.
         :return: bool, error_message
         """
         return_value = True
@@ -94,8 +95,10 @@ class PIR:
         try:
             self._pir_interrupt = pyb.ExtInt('X1', pyb.ExtInt.IRQ_RISING, pyb.Pin.PULL_UP, self.pir_callback)
         except ValueError as error:
-            if error == "ExtInt vector {0} is already in use".format(self._pir_interrupt.line()):
+            print(error.args[0])
+            if error.args[0] == "ExtInt vector {0} is already in use".format(self._pir_interrupt.line()):
                 self._pir_interrupt.enable()
+                return return_value, "PIR is now enabled"
             else:
                 print("ValueError: {0}".format(error))
                 return_value = False
@@ -113,6 +116,13 @@ class PIR:
         return return_value, error_message
 
     def stop(self):
+        """
+        Stops the external interrupt for the supplied Pin. If successful will return 'OK'. The method will handle if it's called
+        without first being started.
+        sensor detects a movement.
+        :return: bool, error_message
+        """
+
         if self._pir_interrupt == None:
             message = "You need to first start the pir with the start method before stopping it. e.g. 'MyPIR.start()' "
             return False, message
@@ -124,7 +134,7 @@ class PIR:
         except:
             print("Unexpected error!")
             raise
-
+        self._active = False
         return True, "OK"
 
     def reset(self, ):
@@ -175,6 +185,6 @@ class PIR:
         """
         Return true if the sensor is currently detecting movement. This polls the Pin to see if it's
         high = active or low = inactive
-        :return: bool
+        :return: value 0 or 1
         """
         return self._pir_pin_object.value()
