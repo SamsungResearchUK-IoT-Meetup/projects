@@ -94,11 +94,11 @@ class MicrowaveRadar:
         return_value = True
         error_message = None
         try:
-            self._mr_interrupt = pyb.ExtInt('X1', pyb.ExtInt.IRQ_RISING, pyb.Pin.PULL_UP, self.mr_callback)
+            self._mr_interrupt = pyb.ExtInt(self.mr_pin, pyb.ExtInt.IRQ_RISING, pyb.Pin.PULL_UP, self.mr_callback)
         except ValueError as error:
             print(error.args[0])
-            if error.args[0] == "ExtInt vector {0} is already in use".format(self._pir_interrupt.line()):
-                self._pir_interrupt.enable()
+            if error.args[0] == "ExtInt vector {0} is already in use".format(self._mr_interrupt.line()):
+                self._mr_interrupt.enable()
                 return return_value, "MicrowaveRadar is now enabled"
             else:
                 print("ValueError: {0}".format(error))
