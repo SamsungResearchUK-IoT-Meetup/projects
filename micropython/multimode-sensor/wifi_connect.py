@@ -74,14 +74,14 @@ class Wifi_manager():
          """
         # TODO Refactor and wrap the important function calls in Try/Except caluse
         if ssid is None:
-            error = "The WiFi manager needs to know what SSID to connect to. It either has never been configured our you forgot to specify \n " \
-                    "e.g. myWifi.connect(ssid='wifi-name', password = 'the-password') "
+            error = "The WiFi manager needs to know what SSID to connect to. It either has never been configured or you forgot to specify \n " \
+                    "e.g. myWifi.connect('wifi-name', 'the-password') "
             return False, error
         self.ssid = ssid
 
-        if password == None:
+        if password is None:
             error = "The WiFi manager needs to know what password to connect to. It either has never been configured our you forgot to specify \n " \
-                    "e.g. myWifi.connect(ssid='wifi-name', password = 'the-password') "
+                    "e.g. myWifi.connect(wifi-name', 'the-password') "
             return False, error
         self._password = password
 
@@ -119,8 +119,8 @@ class Wifi_manager():
         if not self.active:
             print("WiFi Manager is now monitoring the connection")
             self.active = True                                  # Let the WiFi manager store state on managing the WiFi network to true.
-            self._timer = pyb.Timer(1, freq=0.1)               # create a timer object using timer 1 - trigger at 0.1Hz
-            self._timer.callback(self.__check_connection)         # set the callback to our tick function
+            self._timer = pyb.Timer(1, freq=0.1)                # create a timer object using timer 1 - trigger at 0.1Hz
+            self._timer.callback(self.__check_connection)       # set the callback to our timer function
 
         return True, message
 
@@ -181,7 +181,6 @@ class Wifi_manager():
         if retry_count is None:
             return self._retries
 
-
         return_value = True
         message = None
 
@@ -241,7 +240,7 @@ class Wifi_manager():
             status = "An OS error happened when trying to get status information. Please try again. The error was: {}".format(error)
             return_value = False
         except:
-            print('Unexpectd error!')
+            print('Unexpected error!')
             raise
 
         return return_value, status
