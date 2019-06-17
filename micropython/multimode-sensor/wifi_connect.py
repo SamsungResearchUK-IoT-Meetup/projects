@@ -43,16 +43,16 @@ class Wifi_manager():
     """
 
     def __init__(self, ssid=None, password=None):
-        self.ssid=ssid
-        self._password = password
         self.active = False                             # A variable to switch on/off the management of the Wifi connection
         self.connected = False                          # To temporary hold a state of weather we are connected or not. We may remove this.
-        self._wifi = network.WLAN()                     # An instance of the network WLAN manager
-        self._mac = None
+        self.ssid=ssid
         self.start_time = time.time()                   # The time the Wifi Manager was started
+        self._ap_name = None                            # The access point name, if the manager sets up the system as a WiFi Access point
+        self._mac = None
+        self._password = password
         self._retries = 3                               # How many retries we try and connect before giving up
         self._timer = None                              # The timer object which handles periodic retries
-
+        self._wifi = network.WLAN()                     # An instance of the network WLAN manager
         print("WiFi Manager bringing up wlan interface.")
         self._wifi.active(1)
 
@@ -148,31 +148,37 @@ class Wifi_manager():
 
     def __check_connection(self, timer):  # we will receive the timer object when being called
         """
-         The private method __check_connection is called by a timer via a callback.
+         The private method __check_connection is called by a timer as a callback.
          It's used to check the IP connection and try and reconnect in the event of the connection being pulled down.
 
          :return:
          """
-        print(timer.counter())              # show current timer's counter value
+        #print(timer.counter())              # show current timer's counter value
         if self.active:                     # Check first that we are required to try and reconnect
             if not self._wifi.isconnected():
                 self.connected = False
                 print("Warning: WiFi connection lost. Trying to reconnect")
                 self._wifi.connect(self.ssid, self._password)
             else:
+                print("Connected on IP: {}".format(self._wifi.ifconfig()[0]))           # TODO Make this a log you can switch on or off
                 self.connected = True
         else:
             # OK - it looks like we should not be monitoring this connection. Could be a race condition. Make sure we stop monitoring!
             self._timer.deinit()
             print('Wifi Manager has stopped monitoring the connection')
 
-    def set_retries(self, retry_count):
+    def retries(self, retry_count=None):
         """
-         The set_retries is used to control how many retries the manager will attempt before giving up.
-         It returns True/False and a helpful message in a tuple.
+         The retries is used to control how many retries the manager will attempt before giving up.
+         It returns True/False and a helpful message in a tuple is the user passes in a valid integer number to retry.
+         It returns the current number of retries if no retry value is given.
 
-         :return boolean, string:
+         :return boolean, string OR int:
          """
+        if retry_count is None:
+            return self._retries
+
+
         return_value = True
         message = None
 
@@ -186,12 +192,24 @@ class Wifi_manager():
             return_value = False
             print(error)
             message = "You must input an integer value to set the number of retries"
-            self._retries = 3
+            self._retries = 3                   # Reset the retires count back to default TODO make this a config paramter.
         except:
             print("Unexpected error!")
             raise
 
         return return_value, message
+
+    def set_access_point(self, ap_name="micropython", start_ap=True):
+        """
+        Set the WLAN to an access point. If the AP name is not given, create a default name of the Wifi LAN connection. Return True if successful or False it
+        it fails.
+        :param ap_name: A string to name the AP. If it's not set use the default name.
+        :return:
+        """
+
+        #TODO stop/start AP
+        pass
+
 
     def status(self):
         """
@@ -207,9 +225,6 @@ class Wifi_manager():
 
          :return dictionary:
          """
-        return_value = False
-        status = {}
-
         try:
             status = {'Active monitor': self.active,
                            'Connected': self._wifi.isconnected(),
