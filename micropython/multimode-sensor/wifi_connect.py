@@ -45,10 +45,10 @@ class Wifi_manager():
     def __init__(self, ssid=None, password=None):
         self.active = False                             # A variable to switch on/off the management of the Wifi connection
         self.connected = False                          # To temporary hold a state of weather we are connected or not. We may remove this.
+        self.current_ip_address = None                  # Holds the current IP address.
         self.ssid=ssid
         self.start_time = time.time()                   # The time the Wifi Manager was started
         self._ap_name = None                            # The access point name, if the manager sets up the system as a WiFi Access point
-        self._mac = None
         self._password = password
         self._retries = 3                               # How many retries we try and connect before giving up
         self._timer = None                              # The timer object which handles periodic retries
@@ -111,6 +111,7 @@ class Wifi_manager():
             return False, error
 
         ip_address = self._wifi.ifconfig()[0]
+        self.current_ip_address = ip_address
         message = "IP address is: {}".format(ip_address)
 
         self.connected = True
@@ -138,6 +139,7 @@ class Wifi_manager():
                 self._wifi.disconnect()
             self.connected = False
             self.active = False
+            self.current_ip_address = None
         except OSError as error:
             message = "An OS error happened when trying to disconnect. The error was: {}".format(error)
             return_value = False
@@ -153,14 +155,15 @@ class Wifi_manager():
 
          :return:
          """
-        #print(timer.counter())              # show current timer's counter value
+        # print(timer.counter())              # show current timer's counter value
         if self.active:                     # Check first that we are required to try and reconnect
             if not self._wifi.isconnected():
                 self.connected = False
                 print("Warning: WiFi connection lost. Trying to reconnect")
                 self._wifi.connect(self.ssid, self._password)
             else:
-                print("Connected on IP: {}".format(self._wifi.ifconfig()[0]))           # TODO Make this a log you can switch on or off
+                #print("Connected on IP: {}".format(self.current_ip_address))
+                print("Connection up")
                 self.connected = True
         else:
             # OK - it looks like we should not be monitoring this connection. Could be a race condition. Make sure we stop monitoring!
@@ -209,7 +212,6 @@ class Wifi_manager():
 
         #TODO stop/start AP
         pass
-
 
     def status(self):
         """
