@@ -22,7 +22,7 @@ __version__ = '0.1.0'
 __author__ = 'Nicholas Herriot'
 __license__ = "MIT"
 
-import pyb, network, utime, time
+import pyb, network, utime, time, micropython
 
 class Wifi_manager():
     """
@@ -55,6 +55,8 @@ class Wifi_manager():
         self._wifi = network.WLAN()                     # An instance of the network WLAN manager
         print("WiFi Manager bringing up wlan interface.")
         self._wifi.active(1)
+        self._bound_method = self.__check_connection
+
 
     def connect(self, ssid, password):
         """
@@ -120,7 +122,8 @@ class Wifi_manager():
             print("WiFi Manager is now monitoring the connection")
             self.active = True                                  # Let the WiFi manager store state on managing the WiFi network to true.
             self._timer = pyb.Timer(1, freq=0.1)                # create a timer object using timer 1 - trigger at 0.1Hz
-            self._timer.callback(self.__check_connection)       # set the callback to our timer function
+            #self._timer.callback(self._bound_method)            # set the callback of our timer function
+            self._timer.callback(self.call_back)                # set the callback of our timer function
 
         return True, message
 
@@ -148,7 +151,13 @@ class Wifi_manager():
             raise
         return return_value, message
 
-    def __check_connection(self, timer):  # we will receive the timer object when being called
+    def call_back(self, timer):
+        print("Call back has been called")
+        print(timer.counter())
+        connection = {'ssid':self.ssid, 'password':self._password}
+        micropython.schedule(self.__check_connection, connection)
+
+    def __check_connection(self, connection):  # we will receive the timer object when being called
         """
          The private method __check_connection is called by a timer as a callback.
          It's used to check the IP connection and try and reconnect in the event of the connection being pulled down.
@@ -160,10 +169,13 @@ class Wifi_manager():
             if not self._wifi.isconnected():
                 self.connected = False
                 print("Warning: WiFi connection lost. Trying to reconnect")
-                self._wifi.connect(self.ssid, self._password)
+                #self._wifi.connect(self.ssid, self._password)
+                #micropython.schedule(self._wifi.connect, self.ssid, self._password)
+                self._wifi.connect(connection['ssid'], connection['password'])
             else:
                 #print("Connected on IP: {}".format(self.current_ip_address))
                 print("Connection up")
+                self._wifi.connect(connection['ssid'], connection['password'])
                 self.connected = True
         else:
             # OK - it looks like we should not be monitoring this connection. Could be a race condition. Make sure we stop monitoring!
@@ -173,7 +185,7 @@ class Wifi_manager():
     def retries(self, retry_count=None):
         """
          The retries is used to control how many retries the manager will attempt before giving up.
-         It returns True/False and a helpful message in a tuple is the user passes in a valid integer number to retry.
+         It returns True/False and a helpful message in a tuple if the user passes in a valid integer number to retry.
          It returns the current number of retries if no retry value is given.
 
          :return boolean, string OR int:
