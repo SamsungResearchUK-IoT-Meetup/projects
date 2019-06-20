@@ -55,8 +55,14 @@ class Wifi_manager():
         self._wifi = network.WLAN()                     # An instance of the network WLAN manager
         print("WiFi Manager bringing up wlan interface.")
         self._wifi.active(1)
-        self._bound_method = self.__check_connection
+        self._bound_check_connection = self.__check_connection      # We have to bind this attribute to the method call to get round issues of a callback
+        # happening before the object is initialised. See: https://docs.micropython.org/en/latest/reference/isr_rules.html#writing-interrupt-handlers
 
+    def connect_callback(self, timer):
+        # Passing self.bar would cause allocation.
+        #print("Timer counter is: {}".format(timer.counter()))      # This causes a timer exception to be thrown when it's part of the callback.
+        #print(timer.counter())
+        micropython.schedule(self._bound_check_connection, True)
 
     def connect(self, ssid, password):
         """
@@ -123,7 +129,7 @@ class Wifi_manager():
             self.active = True                                  # Let the WiFi manager store state on managing the WiFi network to true.
             self._timer = pyb.Timer(1, freq=0.1)                # create a timer object using timer 1 - trigger at 0.1Hz
             #self._timer.callback(self._bound_method)            # set the callback of our timer function
-            self._timer.callback(self.call_back)                # set the callback of our timer function
+            self._timer.callback(self.connect_callback)         # set the callback of our timer function
 
         return True, message
 
@@ -151,36 +157,30 @@ class Wifi_manager():
             raise
         return return_value, message
 
-    def call_back(self, timer):
-        print("Call back has been called")
-        print(timer.counter())
-        connection = {'ssid':self.ssid, 'password':self._password}
-        micropython.schedule(self.__check_connection, connection)
-
-    def __check_connection(self, connection):  # we will receive the timer object when being called
+    def __check_connection(self, connect):  # we will receive the timer object when being called
         """
-         The private method __check_connection is called by a timer as a callback.
+         The private method __check_connection is called by a timer as a callback. It is referenced as a bound method from the object _init_
          It's used to check the IP connection and try and reconnect in the event of the connection being pulled down.
 
          :return:
          """
-        # print(timer.counter())              # show current timer's counter value
-        if self.active:                     # Check first that we are required to try and reconnect
-            if not self._wifi.isconnected():
-                self.connected = False
-                print("Warning: WiFi connection lost. Trying to reconnect")
-                #self._wifi.connect(self.ssid, self._password)
-                #micropython.schedule(self._wifi.connect, self.ssid, self._password)
-                self._wifi.connect(connection['ssid'], connection['password'])
+        if connect:                         # Check to see if the caller wants to dummy the function call or not.
+            if self.active:                     # Check first that we are required to try and reconnect
+                if not self._wifi.isconnected():
+                    self.connected = False
+                    print("Warning: WiFi connection lost. Trying to reconnect")
+                    self._wifi.connect(self.ssid, self._password)
+                else:
+                    print("Connected on IP: {}".format(self.current_ip_address))
+                    self._wifi.connect(self.ssid, self._password)
+                    self.connected = True
             else:
-                #print("Connected on IP: {}".format(self.current_ip_address))
-                print("Connection up")
-                self._wifi.connect(connection['ssid'], connection['password'])
-                self.connected = True
+                # OK - it looks like we should not be monitoring this connection. Could be a race condition. Make sure we stop monitoring!
+                self._timer.deinit()
+                print('Wifi Manager has stopped monitoring the connection')
         else:
-            # OK - it looks like we should not be monitoring this connection. Could be a race condition. Make sure we stop monitoring!
-            self._timer.deinit()
-            print('Wifi Manager has stopped monitoring the connection')
+            print("Info: The check connection callback was called, but was asked to do nothing")
+            pass
 
     def retries(self, retry_count=None):
         """
