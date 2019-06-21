@@ -29,8 +29,8 @@ class Wifi_manager():
         A pythonic Wifi Manager which will:
         1) Allow you to configure SSID and Password to connect and maintain/check that connection.
         2) Retry and connect if it's been asked to connect and the connection goes down.
-        3) Use a WiFi SSID/Password from Flash if it exists.
-        4) Encrypt the WiFi SSID/Password on Flash if it does not exist.
+        3) Use a WiFi SSID/Password from Flash if it exists. (TODO)
+        4) Encrypt the WiFi SSID/Password on Flash if it does not exist. (TODO)
         5) Stop a connection and stop the retry/check
         6) Switch to an Access Point mode
 
@@ -40,6 +40,9 @@ class Wifi_manager():
         - active (i.e. managing a connection )
         - connected
         - last connected local time
+        - number of retries when it first connects
+        - access point name
+        - access point password
     """
 
     def __init__(self, ssid=None, password=None):
@@ -48,7 +51,9 @@ class Wifi_manager():
         self.current_ip_address = None                  # Holds the current IP address.
         self.ssid=ssid
         self.start_time = time.time()                   # The time the Wifi Manager was started
-        self._ap_name = None                            # The access point name, if the manager sets up the system as a WiFi Access point
+        self._wifi_ap = network.WLAN(1)                 # The access point name, if the manager sets up the system as a WiFi Access point
+        self.access_point = None                        # Access point name
+        self.ap_password = None                         # Access point password
         self._password = password
         self._retries = 3                               # How many retries we try and connect before giving up
         self._timer = None                              # The timer object which handles periodic retries
@@ -213,16 +218,55 @@ class Wifi_manager():
 
         return return_value, message
 
-    def set_access_point(self, ap_name="micropython", start_ap=True):
+    def set_access_point(self, ap_name="micropython", ap_password='test1234' ,start_ap=True):
         """
         Set the WLAN to an access point. If the AP name is not given, create a default name of the Wifi LAN connection. Return True if successful or False it
-        it fails.
-        :param ap_name: A string to name the AP. If it's not set use the default name.
-        :return:
+        it fails. The method has ap_name and ap_password as optional parameters. Fo start_ap is False the access point is switched off.
+        :param  ap_name: A string to name the AP. If it's not set use the default name.
+                ap_password: A string to represent the AP password.
+                start_ap: Boolean. True to start the AP, False to stop.
+
+        :return: Boolean: True for success, False for failuer
+                 String: A simple message on failure cases if any.
         """
 
-        #TODO stop/start AP
-        pass
+        if start_ap:
+            # First make sure we are not connected to a wifi access point. If we are, we need to disconnect.
+            try:
+                if self._wifi.isconnected():
+                    self._wifi.disconnect()
+                self.connected = False
+                self.active = False
+            except OSError as error:
+                message = "An OS error happened when trying to disconnect WiFi. The error was: {}".format(error)
+                return_value = False
+                return  return_value, message
+            except:
+                print('Unexpected error!')
+                raise
+
+            self.access_point = ap_name                             # Set object attribute for this access point
+            self.ap_password = ap_password                          # Set object attribute for the access point password
+
+            try:
+                self._wifi_ap.config(essid=self.access_point)
+                self._wifi_ap.config(password=self.ap_password)
+                self._wifi_ap.config(channel=6)
+                self._wifi_ap.active(1)
+            except OSError as error:
+                message = "An OS error happened when trying to create an Access Point. The error was: {}".format(error)
+                return_value = False
+                return return_value, message
+            except:
+                print('Unexpected error!')
+                raise
+            message = "Access Point {} created.".format(self.access_point)
+        else:
+            self._wifi_ap.active(0)                                 # Disconnect the access point
+            message = "Access Point deactivated".format(self.access_point)
+
+        return True, message
+
 
     def status(self):
         """
@@ -245,7 +289,11 @@ class Wifi_manager():
                            'SSID name': self.ssid,
                            'Password': self._password,          # TODO Think about encrypting this and storing on SD card
                            'Retries': self._retries,
-                           'Current IP address': self._wifi.ifconfig()[0]
+                           'Current IP address': self._wifi.ifconfig()[0],
+                           'Access Point Name': self.access_point,
+                           'Access Point Connected': self._wifi_ap.isconnected(),
+                           'Access Point IP address': self._wifi_ap.ifconfig()[0],
+                           'Access Point Password': self.ap_password
                            }
             return_value = True
         except OSError as error:
