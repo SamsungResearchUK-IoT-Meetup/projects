@@ -21,7 +21,7 @@ SOFTWARE.
 
 import pyb, time
 
-__version__ = '0.1.0'
+__version__ = '0.0.1'
 __author__ = 'Nicholas Herriot'
 __license__ = "MIT"
 
@@ -56,34 +56,20 @@ class PIR:
      - a method to start the interrupt on the given pin.
      - a method to manually pole the PIR to see if it is active or not.
 
-    References:
-    * http://www.instructables.com/id/PIR-Motion-Sensor-Tutorial/?ALLSTEPS
-    * http://www.datasheet-pdf.info/entry/HC-SR501-Datasheet-PDF
-    * https://learn.adafruit.com/pir-passive-infrared-proximity-motion-sensor/overview
-    * https://github.com/SamsungResearchUK-IoT-Meetup/projects/wiki/Sensors
     """
 
-    def __init__(self, callback=simple_test_callback, pir_pin_id='X1'):
-        self.callback = callback
-        self.pir_pin = pir_pin_id
-        self._pir_pin_object = pyb.Pin(pir_pin_id, pyb.Pin.IN)
-        self.start_time = time.time()
-        self._active = False
-        self._callback_on = True
-        self._last_detection = None
-        self._number_of_triggers = 0
+    def __init__(self, ssid=none, password=none):
+        self._current_ssid = ssid
+        self._current_password = password
+        self.active = False
+        self.last_conected = None
+        self.connected = False
         self._pir_interrupt = None
-        self.name = "PIR Object for sr-501 Sensor"
+        self.name = "WiFi Manager"
 
-    def pir_callback(self, line_number):
-        print("PIR callback called with line number: ", line_number)
-        self._number_of_triggers += 1               # count the number of times we get a pulse
-        self._last_detection = time.time()          # record the last time we got a trigger
-        self._active = True
-        if self._callback_on:
-            self.callback(line_number)
-        else:
-            print("Interrupt on Pin: ", self.pir_pin, " detected")
+    def connect():
+        # TODO try and connect. Check that the SSID is available before attempting. Set a timer off to check that it is still connected
+        pass
 
     def start(self):
         """
