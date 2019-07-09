@@ -73,7 +73,6 @@ class PIR:
         self._last_detection = None
         self._number_of_triggers = 0
         self._pir_interrupt = None
-        self.name = "PIR Object for sr-501 Sensor"
 
     def pir_callback(self, line_number):
         print("PIR callback called with line number: ", line_number)
@@ -94,7 +93,7 @@ class PIR:
         return_value = True
         error_message = None
         try:
-            self._pir_interrupt = pyb.ExtInt(self.pir_pin, pyb.ExtInt.IRQ_RISING, pyb.Pin.PULL_UP, self.pir_callback)
+            self._pir_interrupt = pyb.ExtInt('X1', pyb.ExtInt.IRQ_RISING, pyb.Pin.PULL_UP, self.pir_callback)
         except ValueError as error:
             print(error.args[0])
             if error.args[0] == "ExtInt vector {0} is already in use".format(self._pir_interrupt.line()):
@@ -120,7 +119,7 @@ class PIR:
         """
         Stops the external interrupt for the supplied Pin. If successful will return 'OK'. The method will handle if it's called
         without first being started.
-
+        sensor detects a movement.
         :return: bool, error_message
         """
 
