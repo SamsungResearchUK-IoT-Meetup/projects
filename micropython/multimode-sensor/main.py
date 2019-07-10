@@ -33,7 +33,7 @@ from web.microWebSrv import MicroWebSrv                # Import the WiFi microwe
 # ============================================================================
 
 mywifi = Wifi_manager()                                 # Create our WiFi manager object
-mywifi.connect('srbackup', 'Tr3x1949')                  # TODO pull the password and SSID from an encrypted file on FLASH
+mywifi.connect('Samsung-test', 'test1234')                  # TODO pull the password and SSID from an encrypted file on FLASH
 
 # ============================================================================
 # ===( Web Server Process )===================================================
@@ -47,7 +47,7 @@ mywifi.connect('srbackup', 'Tr3x1949')                  # TODO pull the password
 srv = MicroWebSrv(webPath='www/')
 srv. MaxWebSocketRecvLen     = 256
 srv.WebSocketThreaded		= False
-srv.AcceptWebSocketCallback = _acceptWebSocketCallback
+srv.AcceptWebSocketCallback = acceptWebSocketCallback
 srv.Start()
 
 # ----------------------------------------------------------------------------
