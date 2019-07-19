@@ -226,7 +226,7 @@ class Wifi_manager():
                 ap_password: A string to represent the AP password.
                 start_ap: Boolean. True to start the AP, False to stop.
 
-        :return: Boolean: True for success, False for failuer
+        :return: Boolean: True for success, False for failure.
                  String: A simple message on failure cases if any.
         """
 
