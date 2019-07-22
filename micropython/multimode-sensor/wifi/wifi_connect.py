@@ -221,7 +221,7 @@ class Wifi_manager():
     def set_access_point(self, ap_name="micropython", ap_password='test1234' ,start_ap=True):
         """
         Set the WLAN to an access point. If the AP name is not given, create a default name of the Wifi LAN connection. Return True if successful or False it
-        it fails. The method has ap_name and ap_password as optional parameters. Fo start_ap is False the access point is switched off.
+        it fails. The method has ap_name and ap_password as optional parameters. If start_ap is False the access point is switched off.
         :param  ap_name: A string to name the AP. If it's not set use the default name.
                 ap_password: A string to represent the AP password.
                 start_ap: Boolean. True to start the AP, False to stop.
