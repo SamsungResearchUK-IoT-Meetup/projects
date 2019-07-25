@@ -28,6 +28,7 @@ from web.microWebSrv import MicroWebSrv                # Import the WiFi microwe
 
 # ----------------------------------------------------------------------------
 
+
 @MicroWebSrv.route('/test')
 def _httpHandlerTestGet(httpClient, httpResponse):
     content = """\
@@ -131,7 +132,8 @@ def closedCallback(webSocket):
 
 # ----------------------------------------------------------------------------
 
-# routeHandlers = [
+# Create a list of tuples which hold the URL path being mapped to via HTTP methods POS,PUT,GET, DELETE. And mapes a handler for that tuple.
+#routeHandlers = [
 #	( "/test",	"GET",	_httpHandlerTestGet ),
 #	( "/test",	"POST",	_httpHandlerTestPost )
-# ]
+#]
