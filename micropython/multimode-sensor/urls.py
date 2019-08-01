@@ -24,10 +24,28 @@ __author__ = 'Nicholas Herriot'
 __license__ = "MIT"
 
 from web.microWebSrv import MicroWebSrv                # Import the WiFi microweb server object to allow us to run a mini web server on the board
-
-
+from drivers.sr_501_sensor import PIR
+from  drivers.rcwl_0516_sensor import MicrowaveRadar
 # ----------------------------------------------------------------------------
 
+
+
+
+
+# ============================================================================
+# ================( Create Sensor Objects)====================================
+# ============================================================================
+
+p1 = PIR(pir_pin_id='X1')                   # Create Sensor which uses the 'X1' pin to detect movement
+p1.start()                                  # Start the PIR sensor
+
+mr1 = MicrowaveRadar(mr_pin_id='X2')        # Create Sensor which uses the 'X1' pin to detect movement
+mr1.start()                                 # Start the PIR sensor
+
+
+# ============================================================================
+# ===( Define URL Path for pages)=============================================
+# ============================================================================
 
 @MicroWebSrv.route('/test')
 def _httpHandlerTestGet(httpClient, httpResponse):
@@ -53,6 +71,41 @@ def _httpHandlerTestGet(httpClient, httpResponse):
     httpResponse.WriteResponseOk(headers	= None,
                                   contentType	= "text/html",contentCharset = "UTF-8",
                                   content 		 = content)
+
+
+
+
+@MicroWebSrv.route('/sensors')
+def _httpHandlerTestGet(httpClient, httpResponse):
+    content = """\
+	<!DOCTYPE html>
+	<html lang=en>
+        <head>
+        	<meta charset="UTF-8" />
+            <title>Sensors Page</title>
+        </head>
+        <body>
+            <h1>Sensors Page</h1>
+            PIR Sensor:  %s
+            <br />
+            Doppler Radar: %s
+            <br />
+            Temperature Sensor: %s
+            <br />
+            LUX Light Level: %s
+            <br />
+            Humidity Level: %s
+            <br />
+            LED Light: %s
+            <br />
+        </body>
+    </html>
+	""" % (p1.pir_total(), mr1.mr_total(), "N/A", "N/A", "N/A", "N/A",)
+    httpResponse.WriteResponseOk(headers	= None,
+                                  contentType	= "text/html",contentCharset = "UTF-8",
+                                  content 		 = content)
+
+
 
 
 @MicroWebSrv.route('/test', 'POST')

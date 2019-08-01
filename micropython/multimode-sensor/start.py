@@ -25,10 +25,11 @@ __license__ = "MIT"
 
 
 from wifi.wifi_connect import *                          # Import the WiFi Manager module to help us monitor and stay connected to poor wifi
-from routes import *                                     # Import all the routes that are being used in our web pages and have functions controlling each route
 from web.microWebSrv import MicroWebSrv                  # Import the WiFi microweb server object to allow us to run a mini web server on the board
-from urls import *
+from urls import *                                       # Import all the routes that are being used in our web pages and have functions controlling each route
 import machine,  ubinascii                               # Used to get machine ID, and convert fro b-strings
+from ssd1306 import SSD1306_I2C
+
 # ============================================================================
 # ===( Web Server Process )===================================================
 # ============================================================================
@@ -55,7 +56,7 @@ myWifi.retries(5)                                       # Try connect 5 times si
 
 
 # ============================================================================
-# ===( Define URL Paths)======================================================
+# ===( Define URL Path for Status)============================================
 # ============================================================================
 
 
@@ -91,7 +92,6 @@ def _httpHandlerStatustGet(httpClient, httpResponse):
     httpResponse.WriteResponseOk(headers	= None,
                                   contentType	="text/html", contentCharset="UTF-8",
                                   content 		 =content)
-
 
 
 # ============================================================================
