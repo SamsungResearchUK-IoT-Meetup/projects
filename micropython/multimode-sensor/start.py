@@ -28,7 +28,7 @@ from wifi.wifi_connect import *                          # Import the WiFi Manag
 from web.microWebSrv import MicroWebSrv                  # Import the WiFi microweb server object to allow us to run a mini web server on the board
 from urls import *                                       # Import all the routes that are being used in our web pages and have functions controlling each route
 import machine,  ubinascii                               # Used to get machine ID, and convert fro b-strings
-from ssd1306 import SSD1306_I2C
+#from ssd1306 import SSD1306_I2C
 
 # ============================================================================
 # ===( Web Server Process )===================================================
@@ -38,7 +38,7 @@ srv=None                                                # Make a global variable
 
 def create_web_server():
     server = MicroWebSrv(webPath='www/')
-    server. MaxWebSocketRecvLen = 256
+    server.MaxWebSocketRecvLen = 256
     server.WebSocketThreaded = False
     server.AcceptWebSocketCallback = acceptWebSocketCallback
     server.Start(threaded=True)
@@ -98,7 +98,7 @@ def _httpHandlerStatustGet(httpClient, httpResponse):
 # ===( Create A WiFi Connection and Start Web Server )========================
 # ============================================================================
 
-status = myWifi.connect('srbackup', 'Tr3x1949')                  # TODO pull the password and SSID from an encrypted file on FLASH
+status = myWifi.connect('Samsung-test', 'test1234')                  # TODO pull the password and SSID from an encrypted file on FLASH
 
 if status[0]:
     print('We have a WiFi connection. Bringing up web server')
