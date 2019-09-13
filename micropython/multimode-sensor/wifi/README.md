@@ -1,4 +1,4 @@
-m# WiFi Manager
+# WiFi Manager
 The WiFi Manager is fully documented in the project WiKi. 
 You can read the WiFi page Wiki [here](https://github.com/SamsungResearchUK-IoT-Meetup/projects/wiki/WiFi)
 
