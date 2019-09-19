@@ -79,6 +79,87 @@ Error value: [Errno 19] ENODEV
 Notice that the sensor object is still handling API calls. In this case the temperature sensor reading responds with '0'. This is not the actual temperature or the temperature value on the tile. It's a default software value that is returned by the HDC Sensor object.
 
 
+# Light Level Sensor (OPT3001)
+
+The OPT 3001 sensor documentation can be found [here](https://pybd.io/hw/tile_sensa.html). There is no PIN configuration since this device is connected via [I2C bus](https://i2c.info/) a 2 wire bus protocol.
+The driver for the OPT 3001 is adapted from the micropython code, it includes some helper functions, hardening and statistics.
+
+You can find an image at the top of the page.
+
+## OPT Setup
+The OPT sensor contains a light level sensor. It has address number 69 on the bus. The sensor is mounted via the tile header onto something like the [DIP 28](https://pybd.io/hw/wbus_dip28.html) or the [DIP 68](https://pybd.io/hw/wbus_dip68.html) i.e. it's modular and pluggable.
+
+## Testing The Driver
+The driver for the sensor is [here](https://github.com/SamsungResearchUK-IoT-Meetup/projects/blob/master/micropython/test-programs/tiles/opt3001_sensor.py). The opt3001_sensor.py file is really an enhancement to the basic micropython example code adding a few helper methods, some hardening and a few statistics. It allows you to create an object to get basic information from your light level sensor. It provides methods for lux level, testing the sensor is ready and holding the max and min lux values of values that are fetched from the board.
+
+### Creating OPT3001 Sensor
+Once you have copied the file onto the board, you can create a OPT object:
+
+```python
+/> rshell
+/> repl
+>>> import machine
+>>> from opt3001_sensor import OPT_Sensor
+>>> i2c = machine.ID2C('X')
+>>> opt = OPT_Sensor(i2c)
+```
+### Getting Statistics
+To get statistics from the temperature and humidity sensor use methods **max_lux()** and **min_lux()** like this:
+
+```python
+>>> opt.max_lux()
+4318.719
+>>> opt.min_lux()
+4.72
+```
+
+### Detecting Current Light Levels
+The light level sensor has a method for detecting current light levels which are:
+* lux()
+It responds with the light lux level.
+Examples are:
+
+```python
+>>> opt.lux()
+148.16
+>>> opt.lux()
+4318.719
+>>> opt.lux()
+5470.72
+```
+
+### OPT3001 Object Attributes
+The OPT3001 public Object Attributes can tell you the start time **start_time** of the HDC2080 object and used like this:
+```python
+>>> opt.start_time
+611145275
+```
+
+### Checking OPT3001 Is Ready
+The OPT3001 can be send a message to see if it's ready. Like a 'ping' in network terminanology. In other words it will return a 'True' response on the I2C bus if it's ready to recieve commands. To do this:
+
+```python
+>>> opt.is_ready()
+True
+```
+### Errors From OPT3001
+If the OPT3001 is not responding to messages, there is an electrical fault between the microcontroller and the tile sensor, or the firmware is not configured to use the I2C bus you will see an error generated on the repl like this:
+
+```python
+>>> opt.is_ready()
+The I2C bus is not responding to the I2C device address of: 64
+Error value: [Errno 19] ENODEV
+False
+>>>
+>>> opt.lu()
+The I2C bus is not responding to the I2C device address of: 64
+Error value: [Errno 19] ENODEV
+0
+```
+
+Notice that the sensor object is still handling API calls. In this case the light sensor reading responds with '0'. This is not the actual lux or the lux value on the tile. It's a default software value that is returned by the OPT Sensor object.
+
+
 # Test Program for MicroPython Pyboard D
 
 This test program is written for the new micropython [Pyboard D](http://pybd.io/).
