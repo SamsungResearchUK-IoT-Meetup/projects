@@ -1,3 +1,84 @@
+# Tempearture and Humidity Sensor (HDC2080)
+
+The HDC 2080 sensor documentation can be found [here](https://pybd.io/hw/tile_sensa.html). There is no PIN configuration since this device is connected via [I2C bus](https://i2c.info/) a 2 wire bus protocol.
+The driver for the HDC 2080 is adapted from the micropython code, it includes some helper functions, hardening and statistics.
+
+![hdc 2080 tile](https://github.com/SamsungResearchUK-IoT-Meetup/projects/blob/master/micropython/assets/TILE_SENSA_ds1.jpg)
+
+## HDC Setup
+The HDC sensor contains a temperature sensor and a humidity sensor combined. It has address number 64 on the bus.
+The sensor is mounted via the tile header onto something like the [DIP 28](https://pybd.io/hw/wbus_dip28.html) or the [DIP 68](https://pybd.io/hw/wbus_dip68.html) i.e. it's modular and pluggable.
+
+## Testing The Driver
+The driver for the sensor is [here](https://github.com/SamsungResearchUK-IoT-Meetup/projects/blob/master/micropython/test-programs/tiles/hdc2080_sensor.py). The hdc2080_sensor.py file is really an enhancement to the basic micropython example code adding a few helper methods, some hardening and a few statistics. It allows you to create an object to get basic information from your Humidity and Temperature sensor. It provides methods for temperature, humidity, testing the sensor is ready and holding the max and min temperature values of values that are fetched from the board.
+
+### Creating HDC2080 Sensor
+Once you have copied the file onto the board, you can create a HDC object:
+
+```python
+/> rshell
+/> repl
+>>> import machine
+>>> from hdc2080_sensor import HDC_Sensor
+>>> i2c = machine.ID2C('X')
+>>> tempHumidity = HDC_Sensor(i2c)
+```
+### Getting Statistics
+To get statistics from the temperature and humidity sensor use methods **max_temperature()** and **min_temperature()** like this:
+
+```python
+>>> tempHumidity.max_temperature()
+0
+>>> tempHumidity.min_temperature()
+0
+```
+
+### Detecting Current Temperature
+The temperature and humidity sensor has two methods for detecting current temperature and humidity which are:
+* temperature()
+* humidity()
+The respond with the temperature in degrees centigrade and humidity in percentage concentration of water vapour present in the air.
+Examples are:
+
+```python
+>>> tempHumidity.temperature()
+23.456
+>>> tempHumidity.humidity()
+41.431
+```
+
+### HDC2080 Object Attributes
+The HDC2080 public Object Attributes can tell you the start time **start_time** of the HDC2080 object and used like this:
+```python
+>>> tempHumidity.start_time
+611145275
+```
+
+### Checking HDC2080 Is Ready
+The HDC2080 can be send a message to see if it's ready. Like a 'ping' in network terminanology. In other words it will return a 'True' response on the I2C bus if it's ready to recieve commands. To do this:
+
+```python
+>>> tempHumidity.is_ready()
+True
+```
+### Errors From HDC2080
+If the HDC2080 is not responding to messages, there is an electrical fault between the microcontroller and the tile sensor, or the firmware is not configured to use the I2C bus you will see an error generated on the repl like this:
+
+```python
+>>> tempHumidity.is_ready()
+The I2C bus is not responding to the I2C device address of: 64
+Error value: [Errno 19] ENODEV
+False
+>>>
+>>> tempHumidity.temperature()
+The I2C bus is not responding to the I2C device address of: 64
+Error value: [Errno 19] ENODEV
+0
+```
+
+Notice that the sensor object is still handling API calls. In this case the temperature sensor reading responds with '0'. This is not the actual temperature or the temperature value on the tile. It's a default software value that is returned by the HDC Sensor object.
+
+
 # Test Program for MicroPython Pyboard D
 
 This test program is written for the new micropython [Pyboard D](http://pybd.io/).
